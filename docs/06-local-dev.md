@@ -12,7 +12,15 @@ npm run dev -- -p 3100
 
 Then open <http://localhost:3100>.
 
-Routes: `/`, `/how-it-works`, `/pricing`, `/roi`.
+Two versions run side by side:
+
+| Version | Routes | Theme |
+|---|---|---|
+| **In-house rebuild** | `/`, `/how-it-works`, `/pricing`, `/roi` | mbgrowth colours + the Show's Archivo |
+| **Mike's design** | `/mike`, `/mike/how-it-works`, `/mike/pricing`, `/mike/roi-calculator` | rebuilt from `market-better.lovable.app` — Poppins, purple/orange |
+
+They share nothing but the Next.js app shell. See [design system](05-design-system.md)
+for how the two token sets are kept apart.
 
 Production build check: `npm run build`.
 
@@ -53,7 +61,7 @@ for the sake of the old JS config format.
 
 ## Verified locally
 
-- `npm run build` — compiles clean, all 4 routes prerendered static
+- `npm run build` — compiles clean, all 8 routes prerendered static
 - All routes return HTTP 200 on the dev server
 - Archivo loaded and wired to `--font-archivo`
 - Show button renders in header (`btn btn-primary`) and footer, pointing at the live Show
@@ -76,10 +84,61 @@ Computed styles read back off the running page after the mbgrowth colour swap
 
 The last row is the one that matters for scope: the colour swap left typography untouched.
 
+### Mike's version (`/mike`)
+
+Measured on the running page at 1280px, after the rebuild (2026-10-16):
+
+| Checked | Expected (Lovable) | Measured |
+|---|---|---|
+| Page background | `#efeadc` | `rgb(239, 234, 220)` ✓ |
+| Accent | `#ff4124` | `rgb(255, 65, 36)` ✓ |
+| h1 family / size / weight | Poppins / `text-9xl` / 600 | `Poppins` / `128px` / `600` ✓ |
+| h1 tracking | none (Lovable resets it) | `normal` ✓ |
+| Headers rendered | 1 | 1 ✓ (the in-house chrome does not leak in) |
+
+ROI calculator cross-checked against Lovable's formula: ACV $50,000, 20 appointments,
+25% close, $7,500 retainer, $600/appointment, 50% renewal → 5.0 deals/mo, $3,000,000
+year 1, $1,500,000 year 2, $234,000 invested, **19.2x** ✓
+
+Back on `/`, the in-house version still reads `Archivo` / `-1.6px` with one header and
+one footer — moving it into a route group changed nothing visible.
+
+## Contact forms
+
+Both versions post to `/api/lead`, which forwards server-side to the LeadConnector
+webhook. It runs on the server for two reasons: the webhook URL is an unauthenticated
+capability and both repos are public, and a browser POST with a JSON content type
+triggers a CORS preflight the webhook does not answer.
+
+Set it up locally by copying `web/.env.example` to `web/.env.local` and filling in:
+
+```
+LEAD_WEBHOOK_URL=https://services.leadconnectorhq.com/hooks/…
+```
+
+`.env.local` is gitignored. Do **not** rename the variable to `NEXT_PUBLIC_*` — that
+inlines it into the public client bundle.
+
+Verified end-to-end against a local echo server rather than the real CRM, so no test
+leads were written to Mike's pipeline:
+
+| Case | Result |
+|---|---|
+| Submit on `/` | 200, payload `source: "in-house"` ✓ |
+| Submit on `/mike` | 200, payload `source: "mike"` ✓ |
+| Missing name / phone, blank-after-trim, bad email shape | 400 `invalid_fields` ✓ |
+| Malformed JSON body | 400 `invalid_json` ✓ |
+| 500-char field | truncated to 300 before forwarding ✓ |
+| Webhook unreachable | 502, form shows an error and **keeps** what was typed ✓ |
+
+Grepped both production builds: the URL appears in no build artifact, client or server —
+it is read from the environment at runtime.
+
 ## Known gaps before this is shippable
 
-1. **Contact form is not wired.** Submitting shows "not connected yet" and sends nothing.
-   Needs the real destination — see [open questions](04-open-questions.md).
+1. **`LEAD_WEBHOOK_URL` must be set in Vercel** before Phase 3. If it is missing the route
+   returns 500 and the form shows an error — chosen over failing silently, but it means a
+   deploy without the variable collects nothing.
 2. **No team page.** Deferred to v2 per Mike, pending content.
 3. **Show link points at `marketbetter.xyz`** (the live Show). Centralized in `web/lib/site.ts`
    as `SHOW_URL` so the cutover is a one-line change.

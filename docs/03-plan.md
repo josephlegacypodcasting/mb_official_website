@@ -65,9 +65,16 @@ Lovable site is a content/copy reference only. The **visual theme must match the
       calculator), "Let's Talk" form. Copy transcribed verbatim.
 - [x] **Show link as top-right nav button**, pointing at the live Show. Centralized as
       `SHOW_URL` in `web/lib/site.ts` so the cutover is a one-line change.
-- [ ] **Local review and approval** ← current step
-- [ ] **Wire the contact form** to a real destination — currently inert by design so the
-      prototype can't silently swallow leads. Needs the destination from Lovable.
+- [x] **Second version at `/mike`** (Joseph, 2026-10-16) — Mike's Lovable design rebuilt
+      in the same app so both can be reviewed side by side. The in-house version moved
+      into an `app/(show)/` route group; its URLs are unchanged.
+- [ ] **Local review and approval — pick a direction** ← current step. The two versions
+      are `/` (mbgrowth colours + the Show's Archivo) and `/mike` (Lovable's Poppins and
+      orange). Phase 3 can't start until one of them is the site.
+- [x] **Wire the contact forms** — both versions post to `/api/lead`, which forwards
+      server-side to the LeadConnector webhook Joseph supplied. `source` distinguishes
+      `in-house` from `mike`. Requires `LEAD_WEBHOOK_URL` in the Vercel environment at
+      Phase 3.
 - [ ] **Test the `/show` rewrite** (option B) locally to find out whether Webflow proxies
       cleanly under a path prefix. Can be done before any deploy.
 

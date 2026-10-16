@@ -166,6 +166,57 @@ taken from mbgrowth, used in the footer where the near-black default would disap
 Being stacked rather than single-line, it needs roughly twice the height to stay readable —
 mbgrowth renders it at 42px, we use 36px (`h-9`) in the header and footer.
 
+## Mike's design (`/mike`) — a third, separate source
+
+Added 2026-10-16 on Joseph's request: *"otra version de esta pagina web como lo diseño
+Mike."* This is `market-better.lovable.app` rebuilt inside our Next.js app, so the two
+directions can be compared on one dev server instead of across two platforms.
+
+Everything above describes the in-house rebuild at `/`. **Mike's version shares none of
+it** — different palette, different typeface, different geometry. Keeping them apart is
+the whole point, so its tokens carry an `mk-` prefix inside the same `@theme` block.
+
+Lovable stores its palette as HSL triplets in `:root` inside
+`assets/index-lat2Vftg.css`. Converted to hex:
+
+| Lovable var | Our token | Hex | Role |
+|---|---|---|---|
+| `--background` | `--color-mk-bg` | `#efeadc` | Page background — the same sand as ours, by coincidence |
+| `--foreground` | `--color-mk-fg` | `#161519` | Body text |
+| `--primary` | `--color-mk-primary` | `#432ead` | The purple bands — the same purple as mbgrowth |
+| `--accent` | `--color-mk-accent` | `#ff4124` | Orange-red, on nearly every heading |
+| `--secondary` | `--color-mk-secondary` | `#ada4d0` | The struck-through "vanity metrics" text |
+| `--muted-foreground` | `--color-mk-muted-fg` | `#605e68` | Secondary copy |
+| `--border` | `--color-mk-border` | `#b6b5c0` | Hairlines, slider track |
+| `--card` | `--color-mk-card` | `#ffffff` | The non-featured pricing card |
+| `--panel-ink` | `--color-mk-panel-ink` | `#121212` | The featured pricing card |
+| `--peach` | `--color-mk-peach` | `#ffd9cc` | That card's border |
+
+Worth noting: Mike's purple is `#432ead`, byte-identical to mbgrowth's. The two designs
+are less far apart than they look — the real divergence is the typeface and the accent.
+
+**Typeface: Poppins** 400–800 via `next/font/google`, exposed as `--font-display` so
+`font-display` works as a Tailwind utility. (mbgrowth uses Roboto, the Show uses Archivo,
+Lovable uses Poppins — three sites, three typefaces.)
+
+**The heading conflict, and how it's resolved.** Our base layer gives `h1`–`h5` a fixed
+scale with negative tracking. Lovable does the opposite: it strips headings to
+`font-size: inherit; font-weight: inherit` and sizes each one with a utility class
+(`text-9xl`, `leading-[.94]`, and so on). Both can't be globally true, so the reset is
+scoped to a `.theme-mike` wrapper applied by the `/mike` layout. A class selector
+outranks bare element selectors in the base layer, and utilities outrank both — exactly
+the cascade order we need.
+
+**Route layout.** `app/(show)/` is a route group holding the in-house version, so it can
+own its header/footer without changing any URL. `app/mike/` is a real segment with its
+own layout, header, and footer. The root layout now only owns `<html>`/`<body>` and loads
+both fonts.
+
+**Not reproduced:** Lovable bundles testimonial avatars and client logos as PNGs (Credit
+Repair Cloud, DFY Real Estate, AAICT). We don't have those assets, so those cards render
+attribution as text. Also not reproduced: Lovable's Supabase form wiring — the form posts
+to a LeadConnector webhook instead, see [open questions](04-open-questions.md).
+
 ## Open items
 
 - **Spacing scale** — the Show's section padding is scattered across per-component Webflow

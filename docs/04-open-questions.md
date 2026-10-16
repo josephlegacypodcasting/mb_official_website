@@ -25,10 +25,28 @@ be better if someone has it.
 the featured pricing card, the footer). Should the corporate site keep them?
 → **Mike.**
 
-**Contact form destination.** Where does the current Lovable "Let's Talk" form send
-submissions? If we rebuild without wiring the same destination, inbound leads vanish
-silently — and Mike's whole concern is prospects.
-→ **Joseph / whoever set up Lovable.**
+**Contact form destination — RESOLVED (2026-10-16).** Both forms now post to
+`/api/lead`, which forwards server-side to a **LeadConnector (GoHighLevel)** inbound
+webhook supplied by Joseph. The payload is `{name, phone, email, source, submitted_at}`,
+where `source` is `in-house` or `mike` so leads can be attributed to the version that
+produced them.
+
+The webhook URL lives in the `LEAD_WEBHOOK_URL` environment variable, never in the
+client bundle — see [local dev](06-local-dev.md#contact-forms). **It must be set in the
+Vercel project before Phase 3**, or every submission returns a 500 and the form shows an
+error. That is deliberate: a misconfigured deploy must not look like a success.
+
+What this replaces, and why we did not reuse it: Lovable's own build inserts the same
+fields straight into a **Supabase** table called `lead_submissions`, project
+`hkeedmtpgdascuplkpap`, using a publishable key shipped in its public bundle. Anyone
+holding that key can write to that table. Two loose ends remain there, independent of our
+rebuild:
+
+- Who holds that Supabase account, and does anyone watch the table? A row in a database
+  is not a notification — leads may already be sitting there unread.
+- Is row-level security configured? If not, the table is openly writable today.
+
+→ **Joseph / whoever set up Lovable**, for the Supabase cleanup only.
 
 ## Worth raising with Mike now
 

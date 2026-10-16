@@ -1,23 +1,31 @@
 "use client";
 
 import { useState } from "react";
+import { submitLead, type LeadStatus } from "@/lib/submit-lead";
 
 /**
- * NOT WIRED TO A BACKEND YET — see docs/04-open-questions.md. The destination for
- * the current Lovable form is unknown; submitting here only logs locally so the
- * prototype can be reviewed without silently dropping real leads.
+ * Posts to /api/lead, which forwards to the LeadConnector webhook server-side.
  */
 export function ContactForm() {
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<LeadStatus>("idle");
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    setStatus("sending");
+
+    try {
+      await submitLead(form, "in-house");
+      setStatus("sent");
+      form.reset();
+    } catch (error) {
+      console.error(error);
+      setStatus("error");
+    }
+  }
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        setSubmitted(true);
-      }}
-      className="w-full max-w-md"
-    >
+    <form onSubmit={handleSubmit} className="w-full max-w-md">
       <div className="flex flex-col gap-4">
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">
@@ -55,13 +63,23 @@ export function ContactForm() {
           />
         </label>
 
-        <button type="submit" className="btn btn-primary mt-2 self-start">
-          Let&apos;s Talk
+        <button
+          type="submit"
+          disabled={status === "sending"}
+          className="btn btn-primary mt-2 self-start disabled:opacity-60"
+        >
+          {status === "sending" ? "Sending…" : "Let\u2019s Talk"}
         </button>
 
-        {submitted && (
-          <p className="text-sm text-purple">
-            Form not connected yet — this is a prototype. No data was sent.
+        {status === "sent" && (
+          <p className="text-sm text-purple" role="status">
+            Thanks — we&apos;ll be in touch shortly.
+          </p>
+        )}
+
+        {status === "error" && (
+          <p className="text-sm text-accent" role="alert">
+            Something went wrong. Please try again, or email us directly.
           </p>
         )}
       </div>

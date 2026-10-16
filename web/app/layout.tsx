@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo } from "next/font/google";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { Archivo, Poppins } from "next/font/google";
 import "./globals.css";
 
 // Archivo is the font actually applied throughout the Show site, at these weights.
@@ -9,6 +7,14 @@ const archivo = Archivo({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-archivo",
+  display: "swap",
+});
+
+// Poppins is what Mike's Lovable build loads — only the /mike routes use it.
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-poppins",
   display: "swap",
 });
 
@@ -24,12 +30,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={archivo.variable}>
-      <body>
-        <SiteHeader />
-        <main>{children}</main>
-        <SiteFooter />
-      </body>
+    <html lang="en" className={`${archivo.variable} ${poppins.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }

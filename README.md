@@ -18,7 +18,7 @@ deploy?", and "is the cutover safe?"
 
 | Phase | Goal | Target | State |
 |---|---|---|---|
-| 1 | Rebuild locally, mbgrowth colours + Show typography | — | **Built — in review** |
+| 1 | Rebuild locally — two design directions to choose between | — | **Built — in review** |
 | 2 | v2 content (team page, design polish) | Alongside Phase 1 | Backlog |
 | 3 | Deploy to Vercel | After local approval | Not started |
 | 4 | Domain cutover: site → `marketbetter.xyz`, Show relocated | After deploy | Deferred, on hold |
@@ -31,8 +31,13 @@ deploy?", and "is the cutover safe?"
 cd web && npm run dev -- -p 3100
 ```
 
-See [local dev notes](docs/06-local-dev.md) — including why `node_modules` is symlinked off
-this drive.
+Two versions run side by side so they can be compared directly:
+
+- **<http://localhost:3100/>** — the in-house rebuild: mbgrowth colours, the Show's Archivo
+- **<http://localhost:3100/mike>** — Mike's design, rebuilt from `market-better.lovable.app`
+
+Phase 3 waits on picking one. See [local dev notes](docs/06-local-dev.md) — including why
+`node_modules` is symlinked off this drive.
 
 ## Docs
 
@@ -40,7 +45,7 @@ this drive.
 - [Current state audit](docs/02-current-state.md) — DNS, hosting, what's actually live today
 - [Execution plan](docs/03-plan.md) — phased steps, with the `/show` decision called out
 - [Open questions](docs/04-open-questions.md) — what we need from Mike/Alej/Anna
-- [Design system](docs/05-design-system.md) — colours from mbgrowth, typography from the Show
+- [Design system](docs/05-design-system.md) — the in-house tokens, plus Mike's as a separate set
 - [Local dev](docs/06-local-dev.md) — how to run it, what's verified, what's still missing
 
 ## Known decision, parked until the cutover
