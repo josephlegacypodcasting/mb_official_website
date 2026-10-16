@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+/*
+ * Colours come from the mbgrowth funnel stylesheet; typography and geometry
+ * still come from the Show. Provenance for every value: docs/05-design-system.md
+ */
+@theme {
+  --color-accent: #f54e29;
+  --color-accent-dark: #d63d1c;
+  /* The funnel's dark-theme accent — legible where --color-accent is not, i.e.
+     on the ink surfaces. */
+  --color-accent-bright: #ff6440;
+  --color-purple: #432ead;
+  --color-cream: #f4f3f0;
+  --color-beige: #eceae5;
+  --color-sand: #efeadc;
+  --color-ink: #14140f;
+
+  --font-sans: var(--font-archivo), sans-serif;
+
+  --radius-btn: 10px;
+}
+
+@layer base {
+  body {
+    background-color: white;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /*
+   * Heading scale from the Show. Note the negative tracking tightening as size
+   * grows, relaxing to 0 by h5 — this is what makes it read as the brand rather
+   * than default Archivo. The Show's fixed 4rem h1 overflows on mobile, so sizes
+   * are clamped while preserving the desktop values.
+   */
+  h1 {
+    font-size: clamp(2.5rem, 1.5rem + 4vw, 4rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.1rem;
+  }
+
+  h2 {
+    font-size: clamp(2rem, 1.4rem + 2.5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.05rem;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.05rem;
+  }
+
+  h4 {
+    font-size: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.025rem;
+  }
+
+  h5 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0;
+  }
+}
+
+@layer components {
+  /*
+   * The canonical .button from the Show. Positive tracking here is deliberate —
+   * the inverse of the headings.
+   */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border-radius: var(--radius-btn);
+    padding: 0.75rem 1.75rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.02rem;
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+  }
+
+  .btn-primary {
+    background-color: var(--color-accent);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-accent-dark);
+  }
+
+  .btn-dark {
+    background-color: var(--color-ink);
+    color: white;
+  }
+
+  .btn-dark:hover {
+    background-color: var(--color-purple);
+  }
+
+  .btn-outline {
+    border: 1px solid color-mix(in srgb, var(--color-ink) 20%, transparent);
+    color: var(--color-ink);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--color-ink);
+    background-color: var(--color-ink);
+    color: white;
+  }
+}
