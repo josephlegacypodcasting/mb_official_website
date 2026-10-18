@@ -119,8 +119,35 @@ LEAD_WEBHOOK_URL=https://services.leadconnectorhq.com/hooks/…
 `.env.local` is gitignored. Do **not** rename the variable to `NEXT_PUBLIC_*` — that
 inlines it into the public client bundle.
 
-Verified end-to-end against a local echo server rather than the real CRM, so no test
-leads were written to Mike's pipeline:
+### What the ROI calculator contributes
+
+If a prospect moves anything in the ROI calculator, what they modelled rides along with
+whatever contact form they submit afterwards. The calculator and the form sit in
+different parts of the tree — the footer on Mike's version, a CTA section on the
+in-house one — so a `RoiProvider` in the root layout carries the snapshot between them
+(`web/components/roi-context.tsx`). It survives client-side navigation through React
+state and a full reload through `sessionStorage`, which is per-tab and never leaves the
+browser except on an actual submission.
+
+**Only a touched calculator is reported.** The in-house version starts at illustrative
+defaults rather than zero, so without that guard every lead would arrive carrying
+numbers the prospect never chose. A lead with `roi_used: false` means "did not engage
+with it", not "modelled all zeroes".
+
+Fields are flattened to prefixed top-level keys (`roi_acv`, `roi_multiple`,
+`roi_summary`, …) because GoHighLevel maps inbound webhook fields one at a time and
+nested paths are awkward to wire up there. `roi_summary` is a single human-readable line
+so whoever picks the lead up sees the context without expanding fifteen custom fields.
+
+`roi_cost_basis_months` travels with the numbers because **the two versions do not
+compute the same multiple**: the in-house model divides 24 months of revenue by 24
+months of cost, Mike's reproduces Lovable and divides by 12. Identical inputs therefore
+produce roughly double the ROI on `/mike`. See the gap below.
+
+### Verification
+
+Run against a local echo server rather than the live CRM, so no test leads reached
+Mike's pipeline:
 
 | Case | Result |
 |---|---|
@@ -130,17 +157,35 @@ leads were written to Mike's pipeline:
 | Malformed JSON body | 400 `invalid_json` ✓ |
 | 500-char field | truncated to 300 before forwarding ✓ |
 | Webhook unreachable | 502, form shows an error and **keeps** what was typed ✓ |
+| Submit with calculator untouched (both versions) | `roi_used: false`, zero `roi_*` fields ✓ |
+| Submit after touching it, same page | full ROI block, matches the on-screen figures ✓ |
+| Model on `/mike/roi-calculator`, submit on `/mike/pricing` | snapshot survives client nav ✓ |
+| Same, after a full page load | snapshot survives via `sessionStorage` ✓ |
+| ROI block partial, `NaN`, a string, or an array | dropped whole, `roi_used: false`; the lead still goes through ✓ |
+
+Arithmetic was cross-checked independently rather than read off the screen. Mike's
+version with ACV $325,000 / 15 appts / 40% close / $4,900 retainer… reproduces the
+figures in the design exactly: 6.0 deals/mo, $23,400,000 year 1, $12,870,000 year 2,
+$7,236 invested, 5012.4x. The in-house version at $60,000 / 20 / 30% / 70% renewal
+gives 18.1x on $405,600 over 24 months.
 
 Grepped both production builds: the URL appears in no build artifact, client or server —
 it is read from the environment at runtime.
 
 ## Known gaps before this is shippable
 
-1. **`LEAD_WEBHOOK_URL` must be set in Vercel** before Phase 3. If it is missing the route
+1. **The two versions disagree on the ROI multiple.** Both headline it as "24-month
+   projected ROI", but the in-house calculator divides 24 months of revenue by 24
+   months of cost while Mike's divides by 12 — faithfully reproducing Lovable, which is
+   where the inflated figure comes from. Identical inputs give roughly double the ROI on
+   `/mike`. This is prospect-facing and now also flows into the CRM, so whichever
+   version ships needs a deliberate answer: correct Mike's to 24 months, or relabel it.
+   → **Joseph / Mike.**
+2. **`LEAD_WEBHOOK_URL` must be set in Vercel** before Phase 3. If it is missing the route
    returns 500 and the form shows an error — chosen over failing silently, but it means a
    deploy without the variable collects nothing.
-2. **No team page.** Deferred to v2 per Mike, pending content.
-3. **Show link points at `marketbetter.xyz`** (the live Show). Centralized in `web/lib/site.ts`
+3. **No team page.** Deferred to v2 per Mike, pending content.
+4. **Show link points at `marketbetter.xyz`** (the live Show). Centralized in `web/lib/site.ts`
    as `SHOW_URL` so the cutover is a one-line change.
-4. **Testimonials have no photos/logos** — text only. The Lovable v1 had a logo wall
+5. **Testimonials have no photos/logos** — text only. The Lovable v1 had a logo wall
    ("TRUSTED BY LEADERS AT") that needs assets to reproduce.

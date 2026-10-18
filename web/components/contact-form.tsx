@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import { submitLead, type LeadStatus } from "@/lib/submit-lead";
+import { useRoi } from "@/components/roi-context";
 
 /**
  * Posts to /api/lead, which forwards to the LeadConnector webhook server-side.
  */
 export function ContactForm() {
   const [status, setStatus] = useState<LeadStatus>("idle");
+  // Whatever the prospect modelled in the ROI calculator this visit.
+  const { snapshot } = useRoi();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -15,7 +18,7 @@ export function ContactForm() {
     setStatus("sending");
 
     try {
-      await submitLead(form, "in-house");
+      await submitLead(form, "in-house", snapshot);
       setStatus("sent");
       form.reset();
     } catch (error) {

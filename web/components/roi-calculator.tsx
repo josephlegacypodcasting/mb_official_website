@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRoi } from "@/components/roi-context";
 
 /**
  * 24-month ROI model.
@@ -33,6 +34,19 @@ export function RoiCalculator() {
   const [costPerAppointment, setCostPerAppointment] = useState(600);
   const [renewalRate, setRenewalRate] = useState(70);
 
+  const { reportRoi } = useRoi();
+  const [touched, setTouched] = useState(false);
+
+  // Unlike Mike's version, these fields start at illustrative defaults rather
+  // than zero — so an untouched calculator must not be reported, or every lead
+  // would carry numbers the prospect never chose.
+  const track =
+    <T,>(set: (value: T) => void) =>
+    (value: T) => {
+      setTouched(true);
+      set(value);
+    };
+
   const results = useMemo(() => {
     const dealsPerMonth = appointments * (closeRate / 100);
     const dealsYear1 = dealsPerMonth * MONTHS_PER_YEAR;
@@ -60,6 +74,38 @@ export function RoiCalculator() {
     };
   }, [acv, appointments, closeRate, retainer, costPerAppointment, renewalRate]);
 
+  useEffect(() => {
+    if (!touched) return;
+
+    reportRoi({
+      acv,
+      appointmentsPerMonth: appointments,
+      closeRatePct: closeRate,
+      monthlyRetainer: retainer,
+      costPerAppointment,
+      renewalRatePct: renewalRate,
+      dealsPerMonth: results.dealsPerMonth,
+      dealsYear1: results.dealsYear1,
+      revenueYear1: results.revenueYear1,
+      renewedDealsYear2: results.renewedDealsYear2,
+      revenueYear2: results.revenueYear2,
+      totalInvestment: results.totalInvestment,
+      netReturn: results.netReturn,
+      multiple: results.roi,
+      costBasisMonths: PROJECTION_MONTHS,
+    });
+  }, [
+    touched,
+    results,
+    acv,
+    appointments,
+    closeRate,
+    retainer,
+    costPerAppointment,
+    renewalRate,
+    reportRoi,
+  ]);
+
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:gap-12">
       <div className="rounded-2xl border border-ink/10 p-8">
@@ -68,40 +114,40 @@ export function RoiCalculator() {
           <NumberField
             label="Average contract value (ACV)"
             value={acv}
-            onChange={setAcv}
+            onChange={track(setAcv)}
             prefix="$"
             step={1000}
           />
           <NumberField
             label="New appointments set per month"
             value={appointments}
-            onChange={setAppointments}
+            onChange={track(setAppointments)}
           />
           <NumberField
             label="Close rate on appointments set"
             value={closeRate}
-            onChange={setCloseRate}
+            onChange={track(setCloseRate)}
             suffix="%"
             max={100}
           />
           <NumberField
             label="Monthly retainer"
             value={retainer}
-            onChange={setRetainer}
+            onChange={track(setRetainer)}
             prefix="$"
             step={100}
           />
           <NumberField
             label="Cost per appointment"
             value={costPerAppointment}
-            onChange={setCostPerAppointment}
+            onChange={track(setCostPerAppointment)}
             prefix="$"
             step={50}
           />
           <NumberField
             label="Client renewal rate (year 2)"
             value={renewalRate}
-            onChange={setRenewalRate}
+            onChange={track(setRenewalRate)}
             suffix="%"
             max={100}
           />

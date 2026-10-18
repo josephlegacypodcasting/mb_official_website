@@ -48,6 +48,21 @@ rebuild:
 
 → **Joseph / whoever set up Lovable**, for the Supabase cleanup only.
 
+**ROI calculator data now rides along (2026-10-18).** If a prospect touches the ROI
+calculator, what they modelled is attached to whatever contact form they submit
+afterwards — inputs, computed outputs, and a one-line `roi_summary`. Leads that never
+touched it carry `roi_used: false` rather than default numbers.
+
+Two things need a decision before this is useful in the CRM:
+
+- **Map the fields in GoHighLevel.** A 200 from the webhook means *received*, not
+  *mapped*. The inbound-webhook trigger only offers fields it has actually seen, so a
+  sample carrying `roi_*` was sent on 2026-10-18 (labelled `TEST - please ignore (ROI
+  fields sample)`) specifically so they appear in the mapper. Delete it once mapped.
+- **The multiple is not comparable across versions** — see the ROI gap in
+  [local dev](06-local-dev.md#known-gaps-before-this-is-shippable). `roi_cost_basis_months`
+  rides along so nobody reads a `/mike` figure as if it meant the same as an in-house one.
+
 ## Worth raising with Mike now
 
 **The 48h expectation.** Mike asked for the site live within 48h because prospects are

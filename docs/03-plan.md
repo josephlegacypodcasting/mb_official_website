@@ -68,13 +68,16 @@ Lovable site is a content/copy reference only. The **visual theme must match the
 - [x] **Second version at `/mike`** (Joseph, 2026-10-16) — Mike's Lovable design rebuilt
       in the same app so both can be reviewed side by side. The in-house version moved
       into an `app/(show)/` route group; its URLs are unchanged.
-- [ ] **Local review and approval — pick a direction** ← current step. The two versions
-      are `/` (mbgrowth colours + the Show's Archivo) and `/mike` (Lovable's Poppins and
-      orange). Phase 3 can't start until one of them is the site.
+- [x] **Local review and approval — direction picked (2026-10-18).** Joseph approved
+      **Mike's version** — the Lovable design: sand background, Poppins, `#ff4124`
+      accent, purple footer. The in-house rebuild at `/` (mbgrowth colours + the Show's
+      Archivo) is not shipping; it stays in git history as the record of the other
+      direction. The approved design already sits at the root of the `mb-website-2026`
+      repo, which is therefore what Phase 3 deploys.
 - [x] **Wire the contact forms** — both versions post to `/api/lead`, which forwards
       server-side to the LeadConnector webhook Joseph supplied. `source` distinguishes
       `in-house` from `mike`. Requires `LEAD_WEBHOOK_URL` in the Vercel environment at
-      Phase 3.
+      Phase 3. A prospect's ROI-calculator figures ride along when they touched it.
 - [ ] **Test the `/show` rewrite** (option B) locally to find out whether Webflow proxies
       cleanly under a path prefix. Can be done before any deploy.
 

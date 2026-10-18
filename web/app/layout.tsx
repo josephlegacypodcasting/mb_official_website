@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Archivo, Poppins } from "next/font/google";
+import { RoiProvider } from "@/components/roi-context";
 import "./globals.css";
 
 // Archivo is the font actually applied throughout the Show site, at these weights.
@@ -31,7 +32,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${archivo.variable} ${poppins.variable}`}>
-      <body>{children}</body>
+      <body>
+        {/* Sits above both versions so an ROI snapshot survives navigation
+            between them and reaches whichever contact form is submitted. */}
+        <RoiProvider>{children}</RoiProvider>
+      </body>
     </html>
   );
 }
