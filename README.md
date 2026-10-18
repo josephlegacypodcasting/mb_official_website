@@ -1,4 +1,14 @@
-# Market Better — Website Migration
+# Market Better — Website Migration (archived)
+
+> **Active work moved on 2026-10-18.**
+> Joseph approved **Mike's design**, which lives at the root of
+> [`mb-website-2026`](https://github.com/josephlegacypodcasting/mb-website-2026).
+> That repo now carries the site, the docs and the deployment.
+>
+> This repo is kept as the record of how the decision was reached: it holds both
+> design directions side by side (`/` in-house, `/mike` Mike's) and the full
+> comparison. **Nothing here is deployed, and its docs are frozen at the point of the
+> move** — do not treat them as current.
 
 Project scope: get the new Market Better corporate site live on the right domain,
 relocate the Market Better Show, and consolidate everything onto `marketbetter.io`.
@@ -18,7 +28,7 @@ deploy?", and "is the cutover safe?"
 
 | Phase | Goal | Target | State |
 |---|---|---|---|
-| 1 | Rebuild locally — two design directions to choose between | — | **Built — in review** |
+| 1 | Rebuild locally — two design directions to choose between | — | **Done — Mike's design chosen 2026-10-18** |
 | 2 | v2 content (team page, design polish) | Alongside Phase 1 | Backlog |
 | 3 | Deploy to Vercel | After local approval | Not started |
 | 4 | Domain cutover: site → `marketbetter.xyz`, Show relocated | After deploy | Deferred, on hold |
@@ -27,17 +37,19 @@ deploy?", and "is the cutover safe?"
 
 ## Run it locally
 
+For comparison only — the shipping site is in the other repo.
+
 ```bash
 cd web && npm run dev -- -p 3100
 ```
 
-Two versions run side by side so they can be compared directly:
+- **<http://localhost:3100/>** — the in-house rebuild that was *not* chosen: mbgrowth
+  colours, the Show's Archivo
+- **<http://localhost:3100/mike>** — the approved design, now shipped from
+  `mb-website-2026` at the root instead
 
-- **<http://localhost:3100/>** — the in-house rebuild: mbgrowth colours, the Show's Archivo
-- **<http://localhost:3100/mike>** — Mike's design, rebuilt from `market-better.lovable.app`
-
-Phase 3 waits on picking one. See [local dev notes](docs/06-local-dev.md) — including why
-`node_modules` is symlinked off this drive.
+See [local dev notes](docs/06-local-dev.md) — including why `node_modules` is symlinked
+off this drive.
 
 ## Docs
 
